@@ -263,12 +263,13 @@ class GlobalKeyPrefixMixin:
         )
 
 
-class PrefixedStrictRedis(GlobalKeyPrefixMixin, redis.Redis):
+class PrefixedStrictRedis(GlobalKeyPrefixMixin, redis.cluster.RedisCluster):
     """Returns a ``StrictRedis`` client that prefixes the keys it uses."""
 
     def __init__(self, *args, **kwargs):
         self.global_keyprefix = kwargs.pop('global_keyprefix', '')
-        redis.Redis.__init__(self, *args, **kwargs)
+        kwargs = {**kwargs, 'host': 'localhost', 'port': 6379 }
+        redis.cluster.RedisCluster.__init__(self, *args, **kwargs)
 
     def pubsub(self, **kwargs):
         return PrefixedRedisPubSub(
